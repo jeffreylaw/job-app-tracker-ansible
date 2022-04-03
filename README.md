@@ -2,7 +2,6 @@
 
 ## Overview
 
-
 ### Pre-requisites: Environment variables for AWS boto3
 1. Enter your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in the 'keys' file
 2. Enter the local path of a SSH key file that matches an existing AWS EC2 Instance Key Pair in the 'keys' file, replacing (KEY_LOCATION_HERE)
@@ -15,3 +14,5 @@
 - `ansible-playbook main.yml --tags frontend` - Only installs and configures frontend
 - `ansible-playbook main.yml --tags clean` - Deletes AWS infrastructure
 
+## Infrastructure Diagram
+<img src="./AWS_Architecture.png" width="800">
