@@ -1,0 +1,9 @@
+---
+default_user: ubuntu
+ami_id: ami-0892d3c7ee96c0bf7
+frontend_subnet_az: 'us-west-2a'
+backend_subnet_az: 'us-west-2b'
+vpc_cidr: 10.10.0.0/24
+frontend_subnet_cidr: 10.10.0.0/26
+backend_subnet_cidr: 10.10.0.128/26
+app_instance_type: t2.micro

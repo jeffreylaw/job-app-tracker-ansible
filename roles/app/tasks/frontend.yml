@@ -1,0 +1,47 @@
+- name: Download NodeSource installation script
+  get_url:
+    url: https://deb.nodesource.com/setup_14.x
+    dest: /tmp/node_source.sh 
+  register: node_source_script
+
+- name: Execute NodeSource script
+  become: yes
+  shell:
+    cmd: sh /tmp/node_source.sh
+  when: node_source_script.changed == True
+
+- name: Install nodejs and nginx
+  become: yes
+  apt:
+    name:
+      - nodejs
+      - nginx
+
+- name: Start and enable Nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Install Node modules
+  npm:
+    path: /home/{{ default_user }}/app/frontend
+    state: present
+
+- name: Build React app
+  shell:
+    chdir: /home/{{ default_user}}/app/frontend
+    cmd: npm run build
+
+- name: Template Nginx configuration file
+  become: yes
+  template:
+    src: default.j2
+    dest: /etc/nginx/sites-available/default
+
+- name: Reload Nginx
+  become: yes
+  service:
+    name: nginx
+    state: reloaded
+

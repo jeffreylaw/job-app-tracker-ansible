@@ -1,0 +1,4 @@
+.DS_Store
+aws_keys
+*.pem
+*.swp

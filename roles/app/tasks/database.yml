@@ -1,0 +1,51 @@
+- name: Install postgres, postgres additional modules
+  become: yes
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+
+- name: Update libpq-dev
+  become: yes
+  apt:
+    name: libpq-dev
+    state: latest
+
+- name: Install psycopg2 database adapter
+  become: yes
+  become_user: postgres
+  pip:
+    name: psycopg2==2.9.3
+
+- name: Create database for app
+  become: yes
+  become_user: postgres
+  postgresql_db:
+    name: "{{ database_name }}"
+  register: create_postgres_db
+
+- name: Reset postgres user
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    db: "{{ database_name }}"
+    name: postgres
+    password: 'P@ssw0rd'
+
+- name: Copy postgres dump file
+  copy:
+    src: files/db.sql
+    dest: /home/{{ default_user }}
+
+- name: Create database tables for app
+  become: yes
+  become_user: postgres
+  shell:
+    chdir: /home/{{ default_user }}
+    cmd: psql job-tracker-db < db.sql
+    
+
+#- name: Create database tables for app
+#  shell:
+#    chdir: /home/{{ default_user }}/app/api/sql
+#    cmd: python3 create_tables_psg.py

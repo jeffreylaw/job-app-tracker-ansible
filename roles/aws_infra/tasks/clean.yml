@@ -1,0 +1,101 @@
+- name: Get VPC info
+  ec2_vpc_net_info:
+    filters:
+      "tag:Name": AUTO_VPC
+  register: vpc_info
+  tags: info
+
+- name: Get internet gateway info
+  ec2_vpc_igw_info:
+    filters:
+      attachment.vpc-id: "{{ vpc_info.vpcs[0].id }}"
+  register: igw_info
+  tags: info
+
+- name: Get security group info
+  ec2_group_info:
+    filters:
+      vpc-id: "{{ vpc_info.vpcs[0].id }}"
+  register: sg_info
+  tags: info
+
+- name: Get subnet info
+  ec2_vpc_subnet_info:
+    filters:
+      vpc-id: "{{ vpc_info.vpcs[0].id }}"
+  register: subnet_info
+  tags: info
+
+- name: Get route table info
+  ec2_vpc_route_table_info:
+    filters:
+      vpc-id: "{{ vpc_info.vpcs[0].id }}"
+  when: vpc_info.vpcs | length > 0
+  register: route_tbl_info
+  tags: info
+
+- name: Get EC2 instance info
+  ec2_instance_info:
+    filters:
+      vpc-id: "{{ vpc_info.vpcs[0].id }}"
+  register: ec2_info
+  tags: info
+
+- name: Delete EC2 instances
+  ec2_instance:
+    state: absent
+    filters:
+      instance-state-name: running
+      vpc-id: "{{ vpc_info.vpcs[0].id }}"
+
+- name: Delete security group rules within non default security groups
+  ec2_group:
+    group_id: "{{ item.group_id }}"
+    name: "{{ item.group_name }}"
+    description: "{{ item.description }}"
+  when: item.group_name != 'default'
+  with_items:
+    - "{{ sg_info.security_groups }}"
+
+- name: Delete security groups
+  ec2_group:
+    group_id: "{{ item.group_id }}"
+    state: absent
+  when: item.group_name != 'default'
+  with_items:
+    - "{{ sg_info.security_groups }}"
+
+- name: Delete subnets
+  ec2_vpc_subnet:
+    state: absent
+    vpc_id: "{{ vpc_info.vpcs[0].id }}"
+    cidr: "{{ item.cidr_block }}"
+  with_items:
+    - "{{ subnet_info.subnets }}"
+- debug: var=route_tbl_info.route_tables
+
+- name: Delete route tables for the VPC
+  ec2_vpc_route_table:
+    state: absent
+    vpc_id: "{{ vpc_info.vpcs[0].id }}"
+    route_table_id: "{{ item.id }}"
+    lookup: id
+  when:
+    - item.associations | length == 0 or (item.associations | length != 1 and item.associations[0].main != True)
+  with_items:
+    - "{{ route_tbl_info.route_tables }}"
+
+- name: Delete internet gateway
+  ec2_vpc_igw:
+    state: absent
+    vpc_id: "{{ vpc_info.vpcs[0].id }}"
+  when: vpc_info.vpcs | length > 0
+
+- name: Delete VPC
+  ec2_vpc_net:
+    state: absent
+    name: AUTO_VPC
+    cidr_block: "{{ vpc_cidr }}"
+    purge_cidrs: yes
+
+- meta: refresh_inventory

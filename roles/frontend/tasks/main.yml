@@ -1,0 +1,81 @@
+- name: Get EC2 backend instance ip address
+  set_fact: backend_ip_address="http://{{ hostvars[groups['tag_Name_AUTO_EC2_BACKEND'][0]].private_ip_address }}:8080"
+
+- debug: var=backend_ip_address
+
+- name: Install packages
+  become: yes
+  apt:
+    name:
+      - acl
+      - git
+      - nginx
+
+- name: Download NodeSource installation script
+  get_url:
+    url: https://deb.nodesource.com/setup_14.x
+    dest: /tmp/node_source.sh 
+  register: node_source_script
+
+- name: Execute NodeSource script
+  become: yes
+  shell:
+    cmd: sh /tmp/node_source.sh
+  when: node_source_script.changed == True
+
+- name: Install nodejs
+  become: yes
+  apt:
+    name:
+      - nodejs
+
+- name: Start and enable Nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Clone application code
+  git:
+    repo: "{{ app_repo }}"
+    dest: /home/{{ default_user }}/app
+    force: yes
+  register: clone_app
+
+- name: Copy frontend folder
+  copy:
+    src: /home/{{ default_user }}/app/frontend
+    dest: /home/{{ default_user }}
+    remote_src: yes
+  when: clone_app.changed
+  register: copy_frontend
+
+- name: Install Node modules
+  npm:
+    path: /home/{{ default_user }}/frontend
+    state: present
+  register: install_node_modules
+
+- name: Build React app
+  shell:
+    chdir: /home/{{ default_user }}/frontend
+    cmd: npm run build
+  when: copy_frontend.changed and install_node_modules.changed
+
+- name: Template Nginx configuration file
+  become: yes
+  template:
+    src: default.j2
+    dest: /etc/nginx/sites-available/default
+  register: template_nginx
+
+- name: Reload Nginx
+  become: yes
+  service:
+    name: nginx
+    state: reloaded
+  when: template_nginx.changed
+
+- name: Frontend instance IP
+  debug:
+    msg: "{{ hostvars[groups['tag_Name_AUTO_EC2_FRONTEND'][0]].public_ip_address }}"

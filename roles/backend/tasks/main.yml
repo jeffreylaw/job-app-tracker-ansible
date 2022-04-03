@@ -1,0 +1,18 @@
+---
+- name: Install common packages
+  become: yes
+  apt:
+    name:
+      - acl
+      - git
+      - python3-pip
+    update_cache: yes
+
+- name: Clone application code
+  git:
+    repo: "{{ app_repo }}"
+    dest: /home/{{ default_user }}/app
+    force: yes
+
+- include_tasks: tasks/database.yml
+- include_tasks: tasks/backend.yml

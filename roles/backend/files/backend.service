@@ -1,0 +1,12 @@
+[Unit]
+Description=Backend App Service
+After=network.target
+
+[Service]
+User=backend
+WorkingDirectory=/backend/api
+ExecStart=sh /backend/start-server.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

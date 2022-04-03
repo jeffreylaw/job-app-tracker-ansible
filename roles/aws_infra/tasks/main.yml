@@ -1,0 +1,28 @@
+---
+- name: Create AWS resources
+  include_tasks:
+    file: tasks/create.yml
+    apply:
+      tags:
+        - create
+  tags:
+    - create
+
+- name: Clean AWS resources
+  include_tasks:
+    file: tasks/clean.yml
+    apply:
+      tags:
+        - clean
+  tags:
+    - clean
+    - never
+
+- name: Show AWS resources info when using --tags info and -v option
+  include_tasks:
+    file: tasks/clean.yml
+  tags:
+    - info
+    - never
+    
+  

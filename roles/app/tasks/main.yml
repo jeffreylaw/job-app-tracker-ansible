@@ -1,0 +1,32 @@
+- name: debug
+  debug:
+    var: group_names
+  tags: [ backend, frontend ]
+
+- name: Install common packages and clone repo
+  include_tasks:
+    file: tasks/common.yml
+    apply:
+      tags: [ backend, frontend]
+  tags: [ backend, frontend ]
+
+- name: Install and configure database
+  include_tasks:
+    file: tasks/database.yml
+    apply:
+      tags: backend
+  tags: backend
+
+- name: Install and configure backend
+  include_tasks: 
+    file: tasks/backend.yml
+    apply:
+      tags: backend
+  tags: backend
+
+- name: Install and configure frontend
+  include_tasks:
+    file: tasks/frontend.yml
+    apply:
+      tags: frontend
+  tags: frontend

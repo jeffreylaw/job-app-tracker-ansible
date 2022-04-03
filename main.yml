@@ -1,0 +1,26 @@
+---
+- name: AWS infrastructure play
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - role: aws_infra
+
+- name: Backend play
+  hosts: tag_Name_AUTO_EC2_BACKEND
+  tasks:
+    - name: Include backend role
+      include_role:
+        name: backend
+        apply:
+          tags: backend
+      tags: backend
+
+- name: Frontend play
+  hosts: tag_Name_AUTO_EC2_FRONTEND
+  tasks:
+    - name: Include frontend role
+      include_role:
+        name: frontend
+        apply:
+          tags: frontend
+      tags: frontend
