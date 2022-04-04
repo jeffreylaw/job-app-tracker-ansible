@@ -1,8 +1,0 @@
----
-app_repo: 'https://gitlab.com/jlday/job-app-tracker.git'
-default_user: ubuntu
-backend_user: backend
-backend_home: /backend
-backend_password: Passw0rd
-backend_url: http://localhost:8080
-database_name: job-tracker-db
