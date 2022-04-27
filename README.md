@@ -2,7 +2,7 @@
 
 ## Overview
 
-### Pre-requisites: Control Node
+### Pre-requisites: Ansible, boto3, boto packages on Control Node
 1. Install Ansible: `sudo dnf install ansible` on Fedora
 2. Install AWS SDK for Python: `pip install boto3 boto`
 
@@ -10,6 +10,9 @@
 1. Enter your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in the 'keys' file
 2. Enter the local path of a SSH key file that matches an existing AWS EC2 Instance Key Pair in the 'keys' file, replacing (KEY_LOCATION_HERE)
 3. Execute the export commands by doing `source keys`
+
+### Pre-requisites: Declaring the name of the AWS EC2 Instance Key Pair that you previously chose
+1. In main.yaml replace (AWS_KEY_PAIR_NAME_HERE) with the corresponding name
 
 ### Ansible commands
 - `ansible-playbook main.yml` - Creates AWS infrastructure, installs and configures backend and frontend
