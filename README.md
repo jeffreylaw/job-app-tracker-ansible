@@ -2,6 +2,10 @@
 
 ## Overview
 
+### Pre-requisites: Control Node
+1. Install Ansible: `sudo dnf install ansible` on Fedora
+2. Install AWS SDK for Python (Boto3): `pip install boto3`
+
 ### Pre-requisites: Environment variables for AWS boto3
 1. Enter your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in the 'keys' file
 2. Enter the local path of a SSH key file that matches an existing AWS EC2 Instance Key Pair in the 'keys' file, replacing (KEY_LOCATION_HERE)
