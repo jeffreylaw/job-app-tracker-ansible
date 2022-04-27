@@ -10,6 +10,7 @@
       - acl
       - git
       - nginx
+    update_cache: yes
 
 - name: Download NodeSource installation script
   get_url:
