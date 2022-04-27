@@ -4,6 +4,8 @@
   gather_facts: no
   roles:
     - role: aws_infra
+  vars:
+    ssh_key_name: AWS_SSH_KEY_NAME_HERE
 
 - name: Backend play
   hosts: tag_Name_AUTO_EC2_BACKEND
